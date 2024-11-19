@@ -169,9 +169,16 @@ const render = () => {
 // launch setup
 setup();
 img.onload = render;
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
+  // Recalculate dimensions and positions after resizing
+  setup();
+}
+
+// Call the function initially and on window resize
+resizeCanvas();
 // start game
 document.addEventListener("click", () => (gamePlaying = true));
-document.addEventListener("touchstart", () => (gamePlaying = true));
-document.addEventListener("touchend", () => (gamePlaying = false));
 window.onclick = () => (flight = jump);
