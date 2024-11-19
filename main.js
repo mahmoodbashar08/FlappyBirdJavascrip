@@ -25,6 +25,20 @@ const pipeLoc = () =>
   Math.random() * (canvas.height - (pipeGap + pipeWidth) - pipeWidth) +
   pipeWidth;
 
+// Retrieve the best score from localStorage
+const getBestScore = () => {
+  const savedScore = localStorage.getItem("bestScore");
+  return savedScore ? parseInt(savedScore, 10) : 0;
+};
+
+// Save the best score to localStorage
+const saveBestScore = (score) => {
+  localStorage.setItem("bestScore", score);
+};
+
+// Initialize the best score
+bestScore = getBestScore();
+
 const setup = () => {
   currentScore = 0;
   flight = jump;
@@ -41,8 +55,6 @@ const setup = () => {
 const render = () => {
   // make the pipe and bird moving
   index++;
-
-  // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // background first part
   ctx.drawImage(
@@ -104,14 +116,16 @@ const render = () => {
       if (pipe[0] <= -pipeWidth) {
         currentScore++;
         // check if it's the best score
-        bestScore = Math.max(bestScore, currentScore);
+        if (currentScore > bestScore) {
+          bestScore = currentScore;
+          saveBestScore(bestScore); // Save to localStorage
+        }
 
         // remove & create new pipe
         pipes = [
           ...pipes.slice(1),
           [pipes[pipes.length - 1][0] + pipeGap + pipeWidth, pipeLoc()],
         ];
-        console.log(pipes);
       }
 
       // if hit the pipe, end
@@ -127,6 +141,7 @@ const render = () => {
       }
     });
   }
+
   // draw bird
   if (gamePlaying) {
     ctx.drawImage(
@@ -151,6 +166,7 @@ const render = () => {
       ...size
     );
     flyHeight = canvas.height / 2 - size[1] / 2;
+
     // text accueil
     ctx.fillText(`Best score : ${bestScore}`, 85, 245);
     ctx.fillText("Click to play", 90, 535);
@@ -169,6 +185,8 @@ const render = () => {
 // launch setup
 setup();
 img.onload = render;
+
+// Handle canvas resizing
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -179,6 +197,8 @@ function resizeCanvas() {
 
 // Call the function initially and on window resize
 resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
 // start game
 document.addEventListener("click", () => (gamePlaying = true));
 window.onclick = () => (flight = jump);
